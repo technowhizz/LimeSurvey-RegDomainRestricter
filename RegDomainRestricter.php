@@ -62,7 +62,7 @@ public function beforeSurveySettings()
           1 => 'Yes'
         ),
         'label' => 'Overwrite the global list of allowed email domains?',
-        'help' => 'Choose yes if you want to allow a different list of domains for this survey than those specified in the global settings.',
+        'help' => 'Choose yes if you want to allow a different list of domains for this survey than those specified in the global settings. Will only work if Yes is chosen above, instead of use site global settings. As a best practice, you should choose Yes and explicitly list the domains below to ensure that only the domains you want are allowed.',
         'current'=> $this->get('bDomainOverwrite','Survey',$oEvent->get('survey')),
       ),
       'sDomains' => array(
@@ -98,23 +98,19 @@ private function isDomainRestrictionDisabled($sSurveyId)
 private function _getEmail($iSurveyId){
        Yii::import('application.controllers.RegisterController');
        $RegisterController= new RegisterController('register');
-       $this->_fixLanguage($iSurveyId);
-       $aSurveyInfo=getSurveyInfo($iSurveyId,App()->getLanguage());
        $aFieldValue=$RegisterController->getFieldValue($iSurveyId);
        return $aFieldValue['sEmail'];
 
 }
 
-private $_aRegisterError=array();
-
 public function beforeRegister(){
   $iSurveyId=$this->getEvent()->get('surveyid');
-  if($this->isHookDisabled($iSurveyId))
+  if($this->isDomainRestrictionDisabled($iSurveyId))
   {
       return;
   }
 
-  $email = _getEmail($iSurveyId);
+  $email = $this->_getEmail($iSurveyId);
 
   if(empty($email)) {
     return;
@@ -122,14 +118,13 @@ public function beforeRegister(){
 
   $emailDomain = strtolower(substr(strrchr($email, "@"), 1));
 
-  $domains = ($this->get('bDomainOverwrite','Survey',$sSurveyId)==='1') ? $this->get('sDomains','Survey',$sSurveyId) : $this->get('sDomains',null,null,$this->settings['sDomains']);
+  $domains = (($this->get('bDomainOverwrite','Survey',$iSurveyId)==='1') && ($this->get('bUse','Survey',$sSurveyId)==1)) ? $this->get('sDomains','Survey',$iSurveyId) : $this->get('sDomains',null,null,$this->settings['sDomains']);
   $domains = explode(',', $domains);
 
   if (in_array($emailDomain, $domains)){
     return;
   } else {
-    $this->_aRegisterError[]=gT("The email address you have entered is not from an accepted domain for this survey. Please try with an email from an accepted domain.");
-    $this->getEvent()->set('aRegisterError', $_aRegisterError);
+    $this->getEvent()->set('aRegisterErrors', array("The email address you have entered is not from an accepted domain for this survey. Please try with an email from an accepted domain."));
   }
 
 
