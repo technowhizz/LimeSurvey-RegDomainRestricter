@@ -1,4 +1,17 @@
 <?php
+/**
+ * RegDomainRestricter: restrict the email domains that can  sign up for a survey via public registration.
+ *
+ * @author Technowhizz <https://github.com/Technowhizz>
+ * @copyright 2021 Technowhizz 
+ * @license MIT
+ * @version 1.0.0
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * The MIT License
+ */
 
 class RegDomainRestricter extends PluginBase{
 
