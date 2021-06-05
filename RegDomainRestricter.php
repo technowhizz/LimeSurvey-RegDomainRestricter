@@ -95,5 +95,44 @@ private function isDomainRestrictionDisabled($sSurveyId)
 }
 
 
+private function _getEmail($iSurveyId){
+       Yii::import('application.controllers.RegisterController');
+       $RegisterController= new RegisterController('register');
+       $this->_fixLanguage($iSurveyId);
+       $aSurveyInfo=getSurveyInfo($iSurveyId,App()->getLanguage());
+       $aFieldValue=$RegisterController->getFieldValue($iSurveyId);
+       return $aFieldValue['sEmail'];
+
+}
+
+private $_aRegisterError=array();
+
+public function beforeRegister(){
+  $iSurveyId=$this->getEvent()->get('surveyid');
+  if($this->isHookDisabled($iSurveyId))
+  {
+      return;
+  }
+
+  $email = _getEmail($iSurveyId);
+
+  if(empty($email)) {
+    return;
+  }
+
+  $emailDomain = strtolower(substr(strrchr($email, "@"), 1));
+
+  $domains = ($this->get('bDomainOverwrite','Survey',$sSurveyId)==='1') ? $this->get('sDomains','Survey',$sSurveyId) : $this->get('sDomains',null,null,$this->settings['sDomains']);
+  $domains = explode(',', $domains);
+
+  if (in_array($emailDomain, $domains)){
+    return;
+  } else {
+    $this->_aRegisterError[]=gT("The email address you have entered is not from an accepted domain for this survey. Please try with an email from an accepted domain.");
+    $this->getEvent()->set('aRegisterError', $_aRegisterError);
+  }
+
+
+}
 
 }
