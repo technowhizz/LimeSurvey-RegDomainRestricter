@@ -131,7 +131,7 @@ public function beforeRegister(){
 
   $emailDomain = strtolower(substr(strrchr($email, "@"), 1));
 
-  $domains = (($this->get('bDomainOverwrite','Survey',$iSurveyId)==='1') && ($this->get('bUse','Survey',$sSurveyId)==1)) ? $this->get('sDomains','Survey',$iSurveyId) : $this->get('sDomains',null,null,$this->settings['sDomains']);
+  $domains = (($this->get('bDomainOverwrite','Survey',$iSurveyId)==='1') && ($this->get('bUse','Survey',$iSurveyId)==1)) ? $this->get('sDomains','Survey',$iSurveyId) : $this->get('sDomains',null,null,$this->settings['sDomains']);
   $domains = explode(',', $domains);
 
   if (in_array($emailDomain, $domains)){
